@@ -26,9 +26,9 @@ const PERSONS: Person[] = [
 ];
 
 const POSTS: Post[] = [
-  { name: "React is awesome", author: "John Doe" },
-  { name: "Why you need to learn JS now", author: "Jane Dae" },
-  { name: "React 19 is here!", author: "John Doe" },
+  { title: "React is awesome", author: "John Doe" },
+  { title: "Why you need to learn JS now", author: "Jane Dae" },
+  { title: "React 19 is here!", author: "John Doe" },
 ];
 
 /** Trainer-Hint: TS is shape-based -> Even without explicit type annotation
@@ -40,3 +40,32 @@ const PERSONS_WITH_POSTS = PERSONS.map((person) => ({
 }));
 
 render("#app", () => personListModule(PERSONS_WITH_POSTS));
+
+const getPersonByName = (name: string): Promise<Person> => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      const person = PERSONS.find((p) => p.name === name);
+      if (person) return res(person);
+      rej("Person not found: " + name);
+    }, 1000);
+  });
+};
+
+const getPostsFor = (person: Person): Promise<Post[]> => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      const posts = POSTS.filter((p) => p.author === person.name);
+      if (posts.length) return res(posts);
+      rej("No posts found for " + person.name);
+    }, 1000);
+  });
+};
+
+const getPostTitlesByName = (name: string) => {
+  return getPersonByName(name)
+    .then((person) => getPostsFor(person))
+    .then((posts) => posts.map((p) => p.title))
+    .catch(console.error);
+};
+
+getPostTitlesByName("John Doe").then(console.log);

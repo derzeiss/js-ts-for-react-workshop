@@ -59,9 +59,9 @@ const personDestructuring = ({ name, bio }) => {
  * 3. Extend the person function to show a persons posts inside a list, like so: <ul><li>{title}</li><li>{title}</li></ul>.
  */
 const POSTS = [
-  { name: "React is awesome", author: "John Doe" },
-  { name: "Why you need to learn JS now", author: "Jane Dae" },
-  { name: "React 19 is here!", author: "John Doe" },
+  { title: "React is awesome", author: "John Doe" },
+  { title: "Why you need to learn JS now", author: "Jane Dae" },
+  { title: "React 19 is here!", author: "John Doe" },
 ];
 
 const PERSONS_WITH_POSTS = PERSONS.map((person) => ({
@@ -73,7 +73,7 @@ const personWithPosts = ({ name, bio, posts }) => {
   return `<h2>${name}</h2>
   <p>${bio}</p>
   <ul>
-    ${posts.map((post) => `<li>${post.name}</li>`).join("\n")}
+    ${posts.map((post) => `<li>${post.title}</li>`).join("\n")}
   </ul>
   `;
 };
@@ -83,3 +83,49 @@ const personWithPosts = ({ name, bio, posts }) => {
  * 2. Import both components as personModule & personListModule (where you need them) and render the list of persons
  */
 render("#app", () => personListModule(PERSONS_WITH_POSTS));
+
+/** TASK 7 (Promises)
+ * 1. All functions created in this task should return a Promise.
+ * 2. Create a function `getPersonByName` that receives a name and returns
+ *    a promise that gets resolved after one second with the corresponding person
+ *    or rejected with an appropriate error message.
+ * 3. Create a function `getPostsFor` that receives a person object and returns
+ *    a promise that gets resolved after one second with the corresponding posts
+ *    or rejected with an appropriate error message.
+ * 4. Create a function `getPostTitlesByName` that receives a name and returns
+ *    a promise that gets resolved with the corresponding post titles
+ *    or rejected with an appropriate error message.
+ * 5. Use this function to log johns post titles to the console.
+ *    The result should be ['React is awesome', 'React 19 is here!'] (after 2s)
+ * 6. Change the name you pass to `getPostTitlesByName` or rename POSTS.author
+ *    to check what happens, when no user or no posts are found.
+ */
+const getPersonByName = (name) => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      const person = PERSONS.find((p) => p.name === name);
+      if (person) return res(person);
+      rej("Person not found: " + name);
+    }, 1000);
+  });
+};
+
+const getPostsFor = (person) => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      const posts = POSTS.filter((p) => p.author === person.name);
+      if (posts.length) return res(posts);
+      rej("No posts found for " + person.name);
+    }, 1000);
+  });
+};
+
+const getPostTitlesByName = (name) => {
+  // Trainer-Hint: If getPostsFor accepts name:string we can also use Promise.all.
+  return getPersonByName(name)
+    .then((person) => getPostsFor(person))
+    .then((posts) => posts.map((p) => p.title))
+    .catch(console.error);
+};
+
+getPostTitlesByName("John Doe").then(console.log);
